@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Command;
 using IAD1.models;
 using OxyPlot;
 using OxyPlot.Series;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -51,7 +52,7 @@ namespace IAD1.ViewModel
 
         private void StartSimulation()
         {
-            Samples = DataReader.LoadData("Resources/" + _filename);
+            Samples = DataReader.LoadData(_filename);
             if(Samples.Count == 0)
             {
                 MessageBoxResult result = MessageBox.Show("Data not loaded. Probably the path is wrong!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -74,6 +75,24 @@ namespace IAD1.ViewModel
             else
             {
                 MessageBoxResult result = MessageBox.Show("First start the simulation!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        public RelayCommand ChooseFile => new RelayCommand(PickFile);
+
+        private void PickFile()
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
+            {
+                DefaultExt = ".data",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            };
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result.HasValue && result.Value)
+            {
+                _filename = dlg.FileName;
             }
         }
     }

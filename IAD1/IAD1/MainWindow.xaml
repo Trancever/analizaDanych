@@ -32,7 +32,7 @@
                     <Button x:Name="NextStepButton" Content="Next Step" Command="{Binding Next}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <TextBox x:Name="FileBox" Text="{Binding Filename, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                    <Button x:Name="FileBox" Content="Choose a file with data" Command="{Binding ChooseFile}"/>
                 </StackPanel>
             </Grid>
         </StackPanel>
