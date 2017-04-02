@@ -48,18 +48,41 @@ namespace IAD1.ViewModel
 
         private ObservableCollection<ScatterPoint> _points = new ObservableCollection<ScatterPoint>();
 
+        public ObservableCollection<ScatterPoint> Neurons
+        {
+            get { return _neurons; }
+            set
+            {
+                _neurons = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private ObservableCollection<ScatterPoint> _neurons = new ObservableCollection<ScatterPoint>();
+
+        private Map Map;
+
         public RelayCommand Start => new RelayCommand(StartSimulation);
+
+        private List<List<double>> inputData;
 
         private void StartSimulation()
         {
-            Samples = DataReader.LoadData(_filename);
-            if(Samples.Count == 0)
+            Points.Clear();
+            Map = new Map(15);
+            inputData = DataReader.LoadData(Filename);
+            Map.Initialise(inputData);
+            if(inputData.Count == 0)
             {
                 MessageBoxResult result = MessageBox.Show("Data not loaded. Probably the path is wrong!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            foreach (DataSample value in _samples)
+            foreach (List<double> value in inputData)
             {
-                Points.Add(new ScatterPoint(value.X, value.Y));
+                Points.Add(new ScatterPoint(value[0], value[1]));
+            }
+            foreach (Neuron neuron in Map.Neurons)
+            {
+                Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));
             }
         }
     
@@ -70,8 +93,13 @@ namespace IAD1.ViewModel
         {
             if(_points != null)
             {
-
-            } 
+                Neurons.Clear();
+                Map.Epoch(inputData);
+                foreach (Neuron neuron in Map.Neurons)
+                {
+                    Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));
+                }
+            }
             else
             {
                 MessageBoxResult result = MessageBox.Show("First start the simulation!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);

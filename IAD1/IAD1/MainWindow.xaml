@@ -39,6 +39,7 @@
         <oxy:Plot  Grid.Row="1" Title="Something">
             <oxy:Plot.Series>
                 <oxy:ScatterSeries MarkerType="Circle" ItemsSource="{Binding Points}"/>
+                <oxy:ScatterSeries MarkerType="Circle" ItemsSource="{Binding Neurons}"/>
             </oxy:Plot.Series>
         </oxy:Plot>
     </Grid>

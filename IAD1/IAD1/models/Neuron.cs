@@ -8,46 +8,38 @@ namespace IAD1.models
 {
     public class Neuron
     {
-        public double[] Weights;
-        public int X;
-        public int Y;
-        private int length;
-        private double nf;
+        private List<double> weights = new List<double>();
+        private double x;
+        private double y;
+        private Random Random = new Random();
 
-        public Neuron(int x, int y, int length)
+        public List<double> Weights { get => weights; set => weights = value; }
+        public double Y { get => y; set => y = value; }
+        public double X { get => x; set => x = value; }
+
+        public Neuron(double x, double y, List<double> weights)
         {
             X = x;
             Y = y;
-            this.length = length;
-            nf = 1000 / Math.Log(length);
+            Weights = weights;
         }
 
-        private double Gauss(Neuron win, int it)
+        public double CalculateDistance(List<double> inputVector)
         {
-            double distance = Math.Sqrt(Math.Pow(win.X - X, 2) + Math.Pow(win.Y - Y, 2));
-            return Math.Exp(-Math.Pow(distance, 2) / (Math.Pow(Strength(it), 2)));
-        }
-
-        private double LearningRate(int it)
-        {
-            return Math.Exp(-it / 1000) * 0.1;
-        }
-
-        private double Strength(int it)
-        {
-            return Math.Exp(-it / nf) * length;
-        }
-
-        public double UpdateWeights(double[] pattern, Neuron winner, int it)
-        {
-            double sum = 0;
-            for (int i = 0; i < Weights.Length; i++)
+            double distance = 0;
+            for(int i = 0; i < weights.Count; i++)
             {
-                double delta = LearningRate(it) * Gauss(winner, it) * (pattern[i] - Weights[i]);
-                Weights[i] += delta;
-                sum += delta;
+                distance += Math.Pow(inputVector[i] - weights[i], 2);
             }
-            return sum / Weights.Length;
+            return Math.Sqrt(distance);
+        }
+
+        public void UpdateWeights(List<double> inputVector, double learningRate, double influence)
+        {
+            for (int i = 0; i < Weights.Count; i++)
+            {
+                weights[i] += learningRate * influence * (inputVector[i] - weights[i]);
+            }
         }
     }
 }

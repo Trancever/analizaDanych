@@ -10,26 +10,28 @@ namespace IAD1.models
 {
     public static class DataReader
     {
-        public static ObservableCollection<DataSample> LoadData(string file)
+        public static List<List<double>> LoadData(string file)
         {
             try
             {
                 StreamReader reader = File.OpenText(file);
-                ObservableCollection<DataSample> list = new ObservableCollection<DataSample>();
+                List<List<double>> list = new List<List<double>>();
                 while (!reader.EndOfStream)
                 {
                     string[] line = reader.ReadLine().Split(' ');
-                    DataSample sample = new DataSample();
-                    sample.X = double.Parse(line[0]);
-                    sample.Y = double.Parse(line[1]);
-                    list.Add(sample);
+                    List<Double> pattern = new List<double>();
+                    for(int i = 0; i < line.Length; i++)
+                    {
+                        pattern.Add(double.Parse(line[i]));
+                    }
+                    list.Add(pattern);
                 }
                 reader.Close();
                 return list;
             }
             catch (Exception e)
             {
-                return new ObservableCollection<DataSample>();
+                return new List<List<double>>();
             }
         }
     }
