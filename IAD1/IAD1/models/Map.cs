@@ -71,14 +71,14 @@ namespace IAD1.models
             return Length / 2 * Math.Exp(-(double)Iteration / TimeConstant);
         }
 
-        public void Epoch(List<List<double>> inputVector)
+        public bool Kohonen(List<List<double>> inputVector)
         {
             if (Iteration >= NumIteration)
             {
-                return;
+                return true;
             }
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Iteration++;
                 int indexOfUsedData = Random.Next(0, inputVector.Count - 1);
@@ -90,7 +90,6 @@ namespace IAD1.models
                 {
                     double distanceToBMU = CalculateDistanceBetweenNeurons(Winner, neuron);
                     double width = Math.Pow(NeighbourhoodRadius, 2);
-
                     if (distanceToBMU < width)
                     {
                         Influence = CalculateInfluence(distanceToBMU, NeighbourhoodRadius);
@@ -98,9 +97,57 @@ namespace IAD1.models
                     }
                 }
                 LearningRate = StartLearningRate * Math.Exp(-(double)Iteration * 5 / NumIteration);
-                Console.WriteLine("Influence = {0} ", Influence);
-                Console.WriteLine("LearningRate = {0}", LearningRate);
             }
+            return false;
+        }
+
+        public bool NeuralGas(List<List<double>> inputVector)
+        {
+            if (Iteration >= NumIteration)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                Iteration++;
+                int indexOfUsedData = Random.Next(0, inputVector.Count - 1);
+                Neuron Winner = FindBestMatchingUnit(inputVector[indexOfUsedData]);
+
+                NeighbourhoodRadius = CalculateNeighbourhoodRadius();
+                double width = Math.Pow(NeighbourhoodRadius, 2);
+                List<Neuron> sortedNeurons = new List<Neuron>();
+                foreach (Neuron neuron in neurons)
+                {
+                    double distanceToBMU = CalculateDistanceBetweenNeurons(Winner, neuron);
+                    if (distanceToBMU < width)
+                    {
+                        double index = InsertNeuronIntoList(sortedNeurons, neuron, Winner);
+                    }
+                }
+
+                for (int j = 0; j < sortedNeurons.Count; j++)
+                {
+                    Influence = 1 - (j / sortedNeurons.Count);
+                    sortedNeurons[j].UpdateWeights(inputVector[indexOfUsedData], LearningRate, Influence);
+                }
+                LearningRate = StartLearningRate * Math.Exp(-(double)Iteration * 5 / NumIteration);
+            }
+            return false;
+        }
+
+        private int InsertNeuronIntoList(List<Neuron> sortedNeurons, Neuron neuron, Neuron bmu)
+        {
+            for (int i = 0; i < sortedNeurons.Count; i++)
+            {
+                if(CalculateDistanceBetweenNeurons(sortedNeurons[i], neuron) < CalculateDistanceBetweenNeurons(sortedNeurons[i], bmu))
+                {
+                    sortedNeurons.Insert(i, neuron);
+                    return i;
+                }
+            }
+            sortedNeurons.Add(neuron);
+            return sortedNeurons.Count-1;
         }
 
         private double CalculateDistanceBetweenNeurons(Neuron first, Neuron second)

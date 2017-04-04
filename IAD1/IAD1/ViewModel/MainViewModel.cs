@@ -69,13 +69,14 @@ namespace IAD1.ViewModel
         private void StartSimulation()
         {
             Points.Clear();
-            Map = new Map(15);
+            Map = new Map(5);
             inputData = DataReader.LoadData(Filename);
-            Map.Initialise(inputData);
             if(inputData.Count == 0)
             {
                 MessageBoxResult result = MessageBox.Show("Data not loaded. Probably the path is wrong!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+            Map.Initialise(inputData);
             foreach (List<double> value in inputData)
             {
                 Points.Add(new ScatterPoint(value[0], value[1]));
@@ -85,7 +86,6 @@ namespace IAD1.ViewModel
                 Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));
             }
         }
-    
 
         public RelayCommand Next => new RelayCommand(NextStep);
 
@@ -94,7 +94,7 @@ namespace IAD1.ViewModel
             if(_points != null)
             {
                 Neurons.Clear();
-                Map.Epoch(inputData);
+                Map.NeuralGas(inputData);
                 foreach (Neuron neuron in Map.Neurons)
                 {
                     Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));
