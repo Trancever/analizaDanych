@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace IAD1.ViewModel
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel2 : ViewModelBase
     {
         public ObservableCollection<DataSample> Samples
         {
@@ -97,7 +97,7 @@ namespace IAD1.ViewModel
             if(_points != null)
             {
                 Neurons.Clear();
-                Map.Kohonen(inputData);
+                Map.NeuralGas(inputData);
                 foreach (Neuron neuron in Map.Neurons)
                 {
                     Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));
@@ -108,10 +108,11 @@ namespace IAD1.ViewModel
                 MessageBoxResult result = MessageBox.Show("First start the simulation!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
+
             count++;
             Iterator = "Count = " + count.ToString();
         }
-        
+
         public RelayCommand ChooseFile => new RelayCommand(PickFile);
 
         private void PickFile()
@@ -137,6 +138,7 @@ namespace IAD1.ViewModel
             var window = new MainWindow();
             window.Show();
         }
+        
 
         private string _iterator { get; set; }
         private int count;

@@ -32,6 +32,7 @@ namespace IAD1.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<MainViewModel2>();
         }
 
         public MainViewModel Main
@@ -39,6 +40,14 @@ namespace IAD1.ViewModel
             get
             {
                 return ServiceLocator.Current.GetInstance<MainViewModel>();
+            }
+        }
+
+        public MainViewModel2 Main2
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<MainViewModel2>();
             }
         }
         
