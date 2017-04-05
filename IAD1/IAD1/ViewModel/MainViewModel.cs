@@ -113,7 +113,7 @@ namespace IAD1.ViewModel
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
             {
                 DefaultExt = ".data",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                InitialDirectory = Environment.CurrentDirectory
             };
 
             Nullable<bool> result = dlg.ShowDialog();

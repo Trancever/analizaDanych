@@ -22,8 +22,17 @@ namespace IAD1.models
         private double NeighbourhoodRadius;
         private double TimeConstant = 0.1;
 
-        public List<Neuron> Neurons { get => neurons; set => neurons = value; }
-        public bool IsDone { get => isDone; set => isDone = value; }
+        public List<Neuron> Neurons
+        {
+            get { return neurons; }
+            set { neurons = value; }
+        }
+
+        public bool IsDone
+        {
+            get { return isDone; }
+            set { isDone = value; }
+        }
 
         public Map(int length)
         {

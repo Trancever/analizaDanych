@@ -13,9 +13,23 @@ namespace IAD1.models
         private double y;
         private Random Random = new Random();
 
-        public List<double> Weights { get => weights; set => weights = value; }
-        public double Y { get => y; set => y = value; }
-        public double X { get => x; set => x = value; }
+        public List<double> Weights
+        {
+            get { return weights; }
+            set { weights = value; }
+        }
+
+        public double Y
+        {
+            get { return y; }
+            set { y = value; }
+        }
+
+        public double X
+        {
+            get { return x; }
+            set { x = value; }
+        }
 
         public Neuron(double x, double y, List<double> weights)
         {

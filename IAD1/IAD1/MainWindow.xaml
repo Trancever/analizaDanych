@@ -5,10 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:local="clr-namespace:IAD1"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d" DataContext="{Binding Main, Source={StaticResource Locator}}"
         Height="350" Width="525">
 
-    <Grid x:Name="MainGrid">
+    <Window.InputBindings>
+        <KeyBinding Key="Right" Command="{Binding Next}"/>
+    </Window.InputBindings>
+
+<Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition  Height="Auto" MinHeight="35"/>
             <RowDefinition  Height="*" MinHeight="200"/>
