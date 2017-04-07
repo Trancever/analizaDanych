@@ -10,24 +10,18 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-
-using IAD1.models;
 
 namespace IAD1
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ErrorWindow1 : Window
     {
-        public MainWindow()
+        public ErrorWindow1()
         {
-           MainWindow2 window = new MainWindow2();
-            window.Show();
-            ErrorWindow1 window1 = new ErrorWindow1();
-            window1.Show();
+            InitializeComponent();
         }
     }
 }

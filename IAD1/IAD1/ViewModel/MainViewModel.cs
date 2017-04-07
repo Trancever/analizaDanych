@@ -12,17 +12,17 @@ namespace IAD1.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        public ObservableCollection<DataSample> Samples
+        public ObservableCollection<DataPoint> Errors
         {
-            get { return _samples; }
+            get { return _errors; }
             set
             {
-                _samples = value;
+                _errors = value;
                 RaisePropertyChanged();
             }
         }
 
-        private ObservableCollection<DataSample> _samples;
+        private ObservableCollection<DataPoint> _errors = new ObservableCollection<DataPoint>();
 
         public string Filename
         {
@@ -97,7 +97,8 @@ namespace IAD1.ViewModel
             if(_points != null)
             {
                 Neurons.Clear();
-                Map.Kohonen(inputData);
+                Tuple<double, int> error = Map.Kohonen(inputData);
+                Errors.Add(new DataPoint(error.Item2, error.Item1));
                 foreach (Neuron neuron in Map.Neurons)
                 {
                     Neurons.Add(new ScatterPoint(neuron.Weights[0], neuron.Weights[1]));

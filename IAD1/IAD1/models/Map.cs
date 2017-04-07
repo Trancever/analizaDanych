@@ -80,11 +80,11 @@ namespace IAD1.models
             return Length / 2 * Math.Exp(-(double)Iteration / TimeConstant);
         }
 
-        public bool Kohonen(List<List<double>> inputVector)
+        public Tuple<double, int> Kohonen(List<List<double>> inputVector)
         {
             if (Iteration >= NumIteration)
             {
-                return true;
+                return new Tuple<double, int>(countError(inputVector), Iteration);
             }
 
             for (int i = 0; i < 5; i++)
@@ -107,14 +107,14 @@ namespace IAD1.models
                 }
                 LearningRate = StartLearningRate * Math.Exp(-(double)Iteration * 5 / NumIteration);
             }
-            return false;
+            return new Tuple<double, int>(countError(inputVector), Iteration);
         }
 
-        public bool NeuralGas(List<List<double>> inputVector)
+        public Tuple<double, int> NeuralGas(List<List<double>> inputVector)
         {
             if (Iteration >= NumIteration)
             {
-                return true;
+                return new Tuple<double, int>(countError(inputVector), Iteration); 
             }
 
             for (int i = 0; i < 5; i++)
@@ -142,7 +142,7 @@ namespace IAD1.models
                 }
                 LearningRate = StartLearningRate * Math.Exp(-(double)Iteration * 5 / NumIteration);
             }
-            return false;
+            return new Tuple<double, int>(countError(inputVector), Iteration);
         }
 
         private int InsertNeuronIntoList(List<Neuron> sortedNeurons, Neuron neuron, Neuron bmu)
@@ -184,9 +184,17 @@ namespace IAD1.models
             }
         }
 
-        //private double CalculateLearningRate()
-        //{
-
-        //}
+        public double countError(List<List<double>> inputVector)
+        {
+            double error = 0;
+            foreach(List<double> dataSample in inputVector)
+            {
+                foreach (Neuron neuron in Neurons)
+                {
+                    error += neuron.CalculateDistance(dataSample);
+                }
+            }
+            return error/inputVector.Count;
+        }
     }
 }

@@ -1,0 +1,22 @@
+﻿<Window x:Class="IAD1.ErrorWindow1"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:local="clr-namespace:IAD1"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        mc:Ignorable="d" DataContext="{Binding Main, Source={StaticResource Locator}}"
+        Title="Zad1" Height="350" Width="525">
+
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition  Height="*" MinHeight="200"/>
+        </Grid.RowDefinitions>
+        <oxy:Plot  Grid.Row="0" Title="Kohonen Error">
+            <oxy:Plot.Series>
+                <oxy:LineSeries ItemsSource="{Binding Errors}"/>
+            </oxy:Plot.Series>
+        </oxy:Plot>
+    </Grid>
+</Window>
