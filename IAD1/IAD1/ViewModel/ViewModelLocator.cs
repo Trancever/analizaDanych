@@ -33,6 +33,7 @@ namespace IAD1.ViewModel
 
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<MainViewModel2>();
+            SimpleIoc.Default.Register<MainViewModel3>();
         }
 
         public MainViewModel Main
@@ -50,6 +51,15 @@ namespace IAD1.ViewModel
                 return ServiceLocator.Current.GetInstance<MainViewModel2>();
             }
         }
+        
+        public MainViewModel3 Main3
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<MainViewModel3>();
+            }
+        }
+
         
         public static void Cleanup()
         {
