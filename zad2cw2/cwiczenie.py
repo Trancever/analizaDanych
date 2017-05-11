@@ -8,20 +8,24 @@ class BackPropagationNetwork:
     layerCount = 0
     shape = None
     weights = []
+    bias = True
 
     # Class methods
-    def __init__(self, layerSize):
+    def __init__(self, layerSize, bias=True):
         """Initialize the network"""
-
+        self.bias = bias
         self.layerCount = len(layerSize) - 1
         self.shape = layerSize
 
         self._layerInput = []
         self._layerOutput = []
 
-        # Create weight arrays
-        for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
-            self.weights.append(np.random.normal(size=(l2, l1+1)))
+        if self.bias:
+            for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
+                self.weights.append(np.random.normal(size=(l2, l1+1)))
+        else:
+            for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
+                self.weights.append(np.random.normal(size=(l2, l1)))
 
 
     # Transform functions
@@ -47,9 +51,15 @@ class BackPropagationNetwork:
         for index in range(self.layerCount):
             # Determine layer input
             if index == 0:
-                layerInput = self.weights[0].dot(np.vstack([input.T, np.ones([1, InputCases])]))
+                if self.bias:
+                    layerInput = self.weights[0].dot(np.vstack([input.T, np.ones([1, InputCases])]))
+                else:
+                    layerInput = self.weights[0].dot(input.T)
             else:
-                layerInput = self.weights[index].dot(np.vstack([self._layerOutput[-1], np.ones([1, InputCases])]))
+                if self.bias:
+                    layerInput = self.weights[index].dot(np.vstack([self._layerOutput[-1], np.ones([1, InputCases])]))
+                else:
+                    layerInput = self.weights[index].dot(self._layerOutput[-1])
 
             self._layerInput.append(layerInput)
             self._layerOutput.append(self.sigmoid(layerInput))
@@ -84,9 +94,15 @@ class BackPropagationNetwork:
             delta_index = self.layerCount - 1 - index
 
             if index == 0:
-                layerOutput = np.vstack([input.T, np.ones([1, InputCases])])
+                if self.bias:
+                    layerOutput = np.vstack([input.T, np.ones([1, InputCases])])
+                else:
+                    layerOutput = input.T
             else:
-                layerOutput = np.vstack([self._layerOutput[index - 1], np.ones([1, self._layerOutput[index -1 ].shape[1]])])
+                if self.bias:
+                    layerOutput = np.vstack([self._layerOutput[index - 1], np.ones([1, self._layerOutput[index -1 ].shape[1]])])
+                else:
+                    layerOutput = self._layerOutput[index - 1]
 
             weightDelta = np.sum(layerOutput[None,:,:].transpose(2, 0, 1) * delta[delta_index][None, :, :].transpose(2, 1, 0), axis = 0)
 
@@ -97,7 +113,16 @@ class BackPropagationNetwork:
 # If run as a script, create test object
 
 if __name__ == "__main__":
-    bpn = BackPropagationNetwork((4, 2, 4))
+
+    if "tak" == input("Czy sieć ma zawierać bias? "):
+        bias = True
+    else:
+        bias = False
+
+    bpn = BackPropagationNetwork((4, 2, 4), bias=bias)
+
+    print(bpn.weights)
+    print(bpn.layerCount)
 
     print("Kształt sieci to: {0}\n".format(bpn.shape))
 
@@ -139,14 +164,16 @@ if __name__ == "__main__":
             break
 
 
+    print("Wynik dla {0} jest równy = {1}".format("[1, 0, 0, 0]", bpn.run(np.array([[1, 0, 0, 0]]))))
+    print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
     output_string = ""
 
-    for x in np.arange(0, 1.1, 0.1):
-        for y in np.arange(0, 1.1, 0.1):
-            for w in np.arange(0, 1.1, 0.1):
-                for z in np.arange(0, 1.1, 0.1):
-                    output_string = output_string + str(x) + " " + str(y) + " " + str(w) + " " + str(z) + " " \
-                            + str(bpn.run(np.array([[x, y, w, z]]))[0][0]) + "\n"
+    # for x in np.arange(0, 1.1, 0.1):
+    #     for y in np.arange(0, 1.1, 0.1):
+    #         for w in np.arange(0, 1.1, 0.1):
+    #             for z in np.arange(0, 1.1, 0.1):
+    #                 output_string = output_string + str(x) + " " + str(y) + " " + str(w) + " " + str(z) + " " \
+    #                         + str(bpn.run(np.array([[x, y, w, z]]))[0][0]) + "\n"
 
     file = open('data', 'w')
     file.write(output_string)
