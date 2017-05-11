@@ -9,6 +9,10 @@ class BackPropagationNetwork:
     shape = None
     weights = []
     bias = True
+    previousWeightDelta = []
+
+    def __str__(self):
+        return "Kształt sieci to - {0}\nWagi - {1}\nBias - {2}".format(self.shape, self.weights, self.bias)
 
     # Class methods
     def __init__(self, layerSize, bias=True):
@@ -23,9 +27,11 @@ class BackPropagationNetwork:
         if self.bias:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
                 self.weights.append(np.random.normal(size=(l2, l1+1)))
+                self.previousWeightDelta = np.copy(self.weights)
         else:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
                 self.weights.append(np.random.normal(size=(l2, l1)))
+                self.previousWeightDelta = np.copy(self.weights)
 
 
     # Transform functions
@@ -105,12 +111,16 @@ class BackPropagationNetwork:
                     layerOutput = self._layerOutput[index - 1]
 
             weightDelta = np.sum(layerOutput[None,:,:].transpose(2, 0, 1) * delta[delta_index][None, :, :].transpose(2, 1, 0), axis = 0)
+            # print(trainingRate * weightDelta)
+            try:
+                self.weights[index] -= trainingRate * weightDelta + momentum * self.previousWeightDelta[index - 1]
+            except:
+                self.weights[index] -= trainingRate * weightDelta
 
-            self.weights[index] -= trainingRate * weightDelta
+            self.previousWeightDelta[index - 1] = weightDelta
 
         return error
 
-# If run as a script, create test object
 
 if __name__ == "__main__":
 
@@ -121,10 +131,7 @@ if __name__ == "__main__":
 
     bpn = BackPropagationNetwork((4, 2, 4), bias=bias)
 
-    print(bpn.weights)
-    print(bpn.layerCount)
-
-    print("Kształt sieci to: {0}\n".format(bpn.shape))
+    print(bpn)
 
     learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
     print("Współczynnik nauki = {0}".format(learning_rate))
