@@ -1,5 +1,8 @@
 import numpy as np
+import jsonpickle.ext.numpy as jsonpickle_numpy
+from jsonpickle import encode, decode
 
+jsonpickle_numpy.register_handlers()
 
 class BackPropagationNetwork:
     """The back-propagation network"""
@@ -23,6 +26,8 @@ class BackPropagationNetwork:
 
         self._layerInput = []
         self._layerOutput = []
+        self.weights = []
+        self.previousWeightDelta = []
 
         if self.bias:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
@@ -41,11 +46,6 @@ class BackPropagationNetwork:
         else:
             out = self.sigmoid(x)
             return out * (1 - out)
-
-
-    def test(self, input, filename):
-        """Test input and store data in file"""
-
 
 
     # Run method
@@ -123,76 +123,102 @@ class BackPropagationNetwork:
         return error
 
 
+def serializeToJson(object, filename):
+    f = open(filename, 'w')
+    f.write(encode(object))
+    f.close()
+    print("Sieć została zapisana do pliku - {0}".format(filename))
+
+
+def deserializeFromJson(filename):
+    f = open(filename, 'r')
+    string = f.read()
+    return decode(string=string)
+
+
 if __name__ == "__main__":
 
-    if "tak" == input("Czy sieć ma zawierać bias? "):
-        bias = True
-    else:
-        bias = False
+    select = 0
+    bpn = BackPropagationNetwork((4, 2, 4))
 
-    bpn = BackPropagationNetwork((4, 2, 4), bias=bias)
+    while(select != 6):
 
-    print(bpn)
+        print("Wcisnij\n1 aby wczytać sieć z pliku.\n2 aby zapisać sieć do pliku.\n3 aby stworzyć nową sieć.\n4 aby zacząć nauke sieci.\n5 aby testować sieć.\n6 aby zakonczyc")
+        select = float(input("Podaj wariant: "))
 
-    learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
-    print("Współczynnik nauki = {0}".format(learning_rate))
+        if select == 1:
+            filename = input("Podaj nazwe pliku z którego chcesz wczytać sieć: ")
+            bpn = deserializeFromJson(filename=filename)
+            print(bpn)
+        elif select == 2:
+            filename = input("Podaj nazwe pliku do którego chcesz zapisać sieć: ")
+            serializeToJson(object=bpn, filename=filename)
+        elif select == 3:
 
-    momentum = .0
-    if "tak" == input("Czy chcesz uwzględnić człon momentum? "):
-        momentum = float(input("Podaj wartość momentum: "))
-        print("Wartość momentum = {0}".format(momentum))
+            if "tak" == input("Czy sieć ma zawierać bias? "):
+                bias = True
+            else:
+                bias = False
 
-    shuffle = False
-    if "losowa" == input("Stała czy losowa kolejność wzorców? "):
-        shuffle = True
-        print("Losowa kolejność wzorców")
-    else:
-        print("Stała kolejność wzorców")
+            bpn = BackPropagationNetwork((4, 2, 4), bias=bias)
+            print(bpn)
+        elif select == 4:
+            learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
+            print("Współczynnik nauki = {0}".format(learning_rate))
 
-    dataInput = np.array([[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]])
-    dataTarget = np.array([[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]])
+            momentum = .0
+            if "tak" == input("Czy chcesz uwzględnić człon momentum? "):
+                momentum = float(input("Podaj wartość momentum: "))
+                print("Wartość momentum = {0}".format(momentum))
 
-    maxIteration = 30000
-    minError = 1e-2
-    error_list = []
-    for i in range(maxIteration+1):
+            shuffle = False
+            if "losowa" == input("Stała czy losowa kolejność wzorców? "):
+                shuffle = True
+                print("Losowa kolejność wzorców")
+            else:
+                print("Stała kolejność wzorców")
 
-        # Shuffle the lists
-        if shuffle:
-            zipped = list(zip(dataInput, dataTarget))
-            np.random.shuffle(zipped)
-            dataInput, dataTarget = zip(*zipped)
-            dataInput = np.array(list(dataInput))
-            dataTarget = np.array(list(dataTarget))
+            dataInput = np.array([[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]])
+            dataTarget = np.array([[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]])
 
-        err = bpn.trainEpoch(input=dataInput, target=dataTarget, momentum=momentum, trainingRate=learning_rate)
-        error_list.append(err)
-        if err <= minError:
-            print("Minimum error reached at iteration {0}".format(i))
+            maxIteration = 30000
+            minError = 1e-2
+            error_list = []
+            for i in range(maxIteration+1):
+
+                # Shuffle the lists
+                if shuffle:
+                    zipped = list(zip(dataInput, dataTarget))
+                    np.random.shuffle(zipped)
+                    dataInput, dataTarget = zip(*zipped)
+                    dataInput = np.array(list(dataInput))
+                    dataTarget = np.array(list(dataTarget))
+
+                err = bpn.trainEpoch(input=dataInput, target=dataTarget, momentum=momentum, trainingRate=learning_rate)
+                error_list.append(err)
+                if err <= minError:
+                    print("Minimum error reached at iteration {0}".format(i))
+                    break
+
+            print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
+
+            output_string = ""
+            iteration = 1
+            for x in error_list:
+                output_string += str(iteration) + " " + str(x) + "\n"
+                iteration += 1
+
+            file = open('error_data', 'w')
+            file.write(output_string)
+            file.close()
+
+        elif select == 5:
+            inp = input("Podaj 4 wartosci oddzielone przecinkami: ")
+            string_array = inp.split(",")
+            array = []
+            for value in string_array:
+                array.append(float(value))
+
+            print("Wynik dla {0} jest równy = {1}".format(array, bpn.run(np.array([array]))))
+        elif select == 6:
             break
-
-
-    print("Wynik dla {0} jest równy = {1}".format("[1, 0, 0, 0]", bpn.run(np.array([[1, 0, 0, 0]]))))
-    print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
-    output_string = ""
-
-    # for x in np.arange(0, 1.1, 0.1):
-    #     for y in np.arange(0, 1.1, 0.1):
-    #         for w in np.arange(0, 1.1, 0.1):
-    #             for z in np.arange(0, 1.1, 0.1):
-    #                 output_string = output_string + str(x) + " " + str(y) + " " + str(w) + " " + str(z) + " " \
-    #                         + str(bpn.run(np.array([[x, y, w, z]]))[0][0]) + "\n"
-
-    file = open('data', 'w')
-    file.write(output_string)
-    file.close()
-
-    output_string = ""
-    iteration = 1
-    for x in error_list:
-        output_string += str(iteration) + " " + str(x) + "\n"
-        iteration += 1
-
-    file = open('error_data', 'w')
-    file.write(output_string)
-    file.close()
