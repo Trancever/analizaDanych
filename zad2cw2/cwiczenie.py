@@ -26,11 +26,11 @@ class BackPropagationNetwork:
 
         if self.bias:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
-                self.weights.append(3*np.random.normal(size=(l2, l1+1)))
+                self.weights.append(np.random.normal(size=(l2, l1+1)))
                 self.previousWeightDelta = np.copy(self.weights)
         else:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
-                self.weights.append(3*np.random.normal(size=(l2, l1)))
+                self.weights.append(np.random.normal(size=(l2, l1)))
                 self.previousWeightDelta = np.copy(self.weights)
 
 
@@ -41,6 +41,11 @@ class BackPropagationNetwork:
         else:
             out = self.sigmoid(x)
             return out * (1 - out)
+
+
+    def test(self, input, filename):
+        """Test input and store data in file"""
+
 
 
     # Run method
