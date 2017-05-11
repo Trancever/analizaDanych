@@ -26,11 +26,11 @@ class BackPropagationNetwork:
 
         if self.bias:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
-                self.weights.append(np.random.normal(size=(l2, l1+1)))
+                self.weights.append(3*np.random.normal(size=(l2, l1+1)))
                 self.previousWeightDelta = np.copy(self.weights)
         else:
             for (l1, l2) in zip(layerSize[:-1], layerSize[1:]):
-                self.weights.append(np.random.normal(size=(l2, l1)))
+                self.weights.append(3*np.random.normal(size=(l2, l1)))
                 self.previousWeightDelta = np.copy(self.weights)
 
 
@@ -111,13 +111,9 @@ class BackPropagationNetwork:
                     layerOutput = self._layerOutput[index - 1]
 
             weightDelta = np.sum(layerOutput[None,:,:].transpose(2, 0, 1) * delta[delta_index][None, :, :].transpose(2, 1, 0), axis = 0)
-            # print(trainingRate * weightDelta)
-            try:
-                self.weights[index] -= trainingRate * weightDelta + momentum * self.previousWeightDelta[index - 1]
-            except:
-                self.weights[index] -= trainingRate * weightDelta
 
-            self.previousWeightDelta[index - 1] = weightDelta
+            self.weights[index] -= trainingRate * weightDelta + momentum * self.previousWeightDelta[index]
+            self.previousWeightDelta[index] = np.copy(weightDelta)
 
         return error
 
@@ -138,7 +134,7 @@ if __name__ == "__main__":
 
     momentum = .0
     if "tak" == input("Czy chcesz uwzględnić człon momentum? "):
-        momentum = input("Podaj wartość momentum: ")
+        momentum = float(input("Podaj wartość momentum: "))
         print("Wartość momentum = {0}".format(momentum))
 
     shuffle = False
