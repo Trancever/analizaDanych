@@ -131,7 +131,8 @@ class BackPropagationNetwork:
         # First run the network
         output = self.run(input)
 
-        output_string = "Input = {0}\nOutput = {1}\nTarget = {2}\nDelta on last layer of neurons = {3}".format(input, output, target, output - target)
+        output_string = "Input = {0}\nOutput = {1}\nTarget = {2}\nDelta on last layer of neurons = {3}\nOverall delta on all last layer neurons = {4}"\
+            .format(input, output, target, output - target, sum((output - target).T**2))
 
         iterator = 0
         while(True):
