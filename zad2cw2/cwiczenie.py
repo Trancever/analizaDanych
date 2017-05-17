@@ -1,6 +1,7 @@
 import numpy as np
 import jsonpickle.ext.numpy as jsonpickle_numpy
 from jsonpickle import encode, decode
+import os.path
 
 jsonpickle_numpy.register_handlers()
 
@@ -122,8 +123,31 @@ class BackPropagationNetwork:
 
         return error
 
+    def test(self, input, target):
+        """It uses run function to calculate forward propagation and also prints some raport to file."""
+        delta = []
+        InputCases = input.shape[0]
+
+        # First run the network
+        output = self.run(input)
+
+        output_string = "Input = {0}\nOutput = {1}\nTarget = {2}\nDelta on last layer of neurons = {3}".format(input, output, target, output - target)
+
+        iterator = 0
+        while(True):
+            if not os.path.isfile("raport{0}".format(iterator)):
+                break
+            iterator += 1
+
+        f = open("raport{0}".format(iterator), 'w')
+        f.write(output_string)
+        f.close()
+
+        return output
+
 
 def serializeToJson(object, filename):
+    """Serialize network to file"""
     f = open(filename, 'w')
     f.write(encode(object))
     f.close()
@@ -131,6 +155,7 @@ def serializeToJson(object, filename):
 
 
 def deserializeFromJson(filename):
+    """Deserialize network from file"""
     f = open(filename, 'r')
     string = f.read()
     return decode(string=string)
@@ -213,12 +238,18 @@ if __name__ == "__main__":
             file.close()
 
         elif select == 5:
-            inp = input("Podaj 4 wartosci oddzielone przecinkami: ")
+            inp = input("Podaj input, 4 wartosci oddzielone przecinkami: ")
             string_array = inp.split(",")
-            array = []
+            input_array = []
             for value in string_array:
-                array.append(float(value))
+                input_array.append(float(value))
 
-            print("Wynik dla {0} jest równy = {1}".format(array, bpn.run(np.array([array]))))
+            inp = input("Podaj target output, 4 wartosci oddzielone przecinkami: ")
+            string_array = inp.split(",")
+            output = []
+            for value in string_array:
+                output.append(float(value))
+
+            print("Wynik dla {0} jest równy = {1}".format(input_array, bpn.test(np.array([input_array]), np.array([output]))))
         elif select == 6:
             break
