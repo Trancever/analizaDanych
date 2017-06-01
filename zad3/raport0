@@ -1,0 +1,5 @@
+Input = [[ 1.  0.  0.  0.]]
+Output = [[  9.75470080e-01   1.78372996e-06   1.05208018e-02   1.40731316e-02]]
+Target = [[ 1.  0.  0.  0.]]
+Delta on last layer of neurons = [[ -2.45299203e-02   1.78372996e-06   1.05208018e-02   1.40731316e-02]]
+Overall delta on all last layer neurons = [ 0.00091046]
