@@ -1,3 +1,5 @@
+from cmath import sqrt
+
 import numpy as np
 import os.path
 
@@ -187,7 +189,9 @@ if __name__ == "__main__":
             else:
                 bias = False
 
-            bpn = BackPropagationNetwork((input_size, 4, output_size), bias=bias)
+            number_of_hidden_neurons = int(input("Podaj ilość neuronów w warstwie ukrytej: "))
+
+            bpn = BackPropagationNetwork((input_size, number_of_hidden_neurons, output_size), bias=bias)
             print(bpn)
         elif select == 2:
             learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
@@ -239,6 +243,8 @@ if __name__ == "__main__":
 
         elif select == 3:
 
+            output_array = np.zeros((output_size, output_size))
+
             good_samples = 0
             bad_samples= 0
 
@@ -247,11 +253,15 @@ if __name__ == "__main__":
 
             for x in range(len(input_test_data)):
                 output = bpn.run(np.array([input_test_data[x]]))
-                if np.argmax(output) == np.argmax([output_test_data[x]]):
+                print(output)
+                computed = np.argmax(output)
+                original = np.argmax([output_test_data[x]])
+                output_array[original][computed] += 1
+                if original == computed:
                     good_samples += 1
                 else:
                     bad_samples += 1
             print("Dobrze zakwalifikowanych próbek jest {0}, źle jest {1}, {2}% jest dobrze.".format(good_samples, bad_samples, good_samples/(good_samples+bad_samples)*100))
-
+            print(output_array)
         elif select == 4:
             break
