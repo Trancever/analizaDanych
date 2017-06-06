@@ -1,5 +1,6 @@
 from cmath import sqrt
-
+from sklearn.svm import SVC
+from sklearn import datasets
 import numpy as np
 import os.path
 
@@ -116,7 +117,6 @@ class BackPropagationNetwork:
                     layerOutput = self._layerOutput[index - 1]
 
             weightDelta = np.sum(layerOutput[None,:,:].transpose(2, 0, 1) * delta[delta_index][None, :, :].transpose(2, 1, 0), axis = 0)
-
             self.weights[index] -= trainingRate * weightDelta + momentum * self.previousWeightDelta[index]
             self.previousWeightDelta[index] = np.copy(weightDelta)
 
@@ -165,103 +165,160 @@ def readDataFromFile(filename):
     return (np.array(input_array), np.array(output_array))
 
 
+def changeTargetDataFormatToFitSVC(targetData):
+    array = []
+    for x in targetData:
+        array.append(np.argmax(x))
+    return np.array(array)
+
+
+def normaliseVector(input):
+    input = np.transpose(input)
+
+    for x in input:
+        min = np.min(x)
+        max = np.max(x)
+        for index, y in enumerate(x):
+            x[index] = (y - min)/(max - min)
+
+    return np.transpose(input)
+
+
+
 
 if __name__ == "__main__":
 
     data_learn_input_file = input("Podaj nazwe pliku z danymi do nauki: ")
     input_learn__data, output_learn_data = readDataFromFile(data_learn_input_file)
-
+    if data_learn_input_file == "wine_learn.data":
+        input_learn__data = normaliseVector(input_learn__data)
     input_size = len(input_learn__data[0])
     output_size = len(output_learn_data[0])
-    print(input_size)
     select = 0
     bpn = None
-
+    mode = None
     while(select != 4):
 
-        print("Wcisnij\n1 aby stworzyć Perceptron\n2 aby zacząć nauke sieci.\n3 aby testować sieć.\n4 aby zakonczyc")
+        print("Wcisnij\n1 aby stworzyć Klasyfikator\n2 aby zacząć nauke.\n3 aby testować.\n4 aby zakonczyc")
         select = int(input("Podaj wariant: "))
 
         if select == 1:
-
-            if "tak" == input("Czy sieć ma zawierać bias? "):
-                bias = True
-            else:
-                bias = False
-
-            number_of_hidden_neurons = int(input("Podaj ilość neuronów w warstwie ukrytej: "))
-
-            bpn = BackPropagationNetwork((input_size, number_of_hidden_neurons, output_size), bias=bias)
-            print(bpn)
-        elif select == 2:
-            learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
-            print("Współczynnik nauki = {0}".format(learning_rate))
-
-            momentum = .0
-            if "tak" == input("Czy chcesz uwzględnić człon momentum? "):
-                momentum = float(input("Podaj wartość momentum: "))
-                print("Wartość momentum = {0}".format(momentum))
-
-            shuffle = False
-            if "losowa" == input("Stała czy losowa kolejność wzorców? "):
-                shuffle = True
-                print("Losowa kolejność wzorców")
-            else:
-                print("Stała kolejność wzorców")
-
-            maxIteration = 100000
-            minError = 1e-5
-            error_list = []
-            for i in range(maxIteration+1):
-
-                # Shuffle the lists
-                if shuffle:
-                    zipped = list(zip(input_learn__data, output_learn_data))
-                    np.random.shuffle(zipped)
-                    dataInput, dataTarget = zip(*zipped)
-                    dataInput = np.array(list(dataInput))
-                    dataTarget = np.array(list(dataTarget))
-
-                err = bpn.trainEpoch(input=input_learn__data, target=output_learn_data, momentum=momentum, trainingRate=learning_rate)
-                if (i % 20) == 0:
-                    error_list.append(err)
-                if err <= minError:
-                    print("Minimum error reached at iteration {0}".format(i))
-                    break
-
-            print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
-
-            output_string = ""
-            iteration = 1
-            for x in error_list:
-                output_string += str(iteration) + " " + str(x) + "\n"
-                iteration += 1
-
-            file = open('error_data', 'w')
-            file.write(output_string)
-            file.close()
-
-        elif select == 3:
-
-            output_array = np.zeros((output_size, output_size))
-
-            good_samples = 0
-            bad_samples= 0
-
-            data_test_input_file = input("Podaj nazwe pliku z danymi do testowania sieci: ")
-            input_test_data, output_test_data = readDataFromFile(data_test_input_file)
-
-            for x in range(len(input_test_data)):
-                output = bpn.run(np.array([input_test_data[x]]))
-                print(output)
-                computed = np.argmax(output)
-                original = np.argmax([output_test_data[x]])
-                output_array[original][computed] += 1
-                if original == computed:
-                    good_samples += 1
+            mode = True if input("Napisz 1 jeśli perceptron, 2 jeśli SVM: ") == "1" else False
+            if mode:
+                if "tak" == input("Czy sieć ma zawierać bias? "):
+                    bias = True
                 else:
-                    bad_samples += 1
-            print("Dobrze zakwalifikowanych próbek jest {0}, źle jest {1}, {2}% jest dobrze.".format(good_samples, bad_samples, good_samples/(good_samples+bad_samples)*100))
-            print(output_array)
+                    bias = False
+
+                number_of_hidden_neurons = int(input("Podaj ilość neuronów w warstwie ukrytej: "))
+
+                bpn = BackPropagationNetwork((input_size, number_of_hidden_neurons, output_size), bias=bias)
+                print(bpn)
+            else:
+                bpn = SVC()
+        elif select == 2:
+            if mode:
+                learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
+                print("Współczynnik nauki = {0}".format(learning_rate))
+
+                momentum = .0
+                if "tak" == input("Czy chcesz uwzględnić człon momentum? "):
+                    momentum = float(input("Podaj wartość momentum: "))
+                    print("Wartość momentum = {0}".format(momentum))
+
+                shuffle = False
+                if "losowa" == input("Stała czy losowa kolejność wzorców? "):
+                    shuffle = True
+                    print("Losowa kolejność wzorców")
+                else:
+                    print("Stała kolejność wzorców")
+
+                maxIteration = 100000
+                minError = 1e-5
+                error_list = []
+                for i in range(maxIteration+1):
+
+                    # Shuffle the lists
+                    if shuffle:
+                        zipped = list(zip(input_learn__data, output_learn_data))
+                        np.random.shuffle(zipped)
+                        dataInput, dataTarget = zip(*zipped)
+                        dataInput = np.array(list(dataInput))
+                        dataTarget = np.array(list(dataTarget))
+
+                    err = bpn.trainEpoch(input=input_learn__data, target=output_learn_data, momentum=momentum, trainingRate=learning_rate)
+                    if (i % 20) == 0:
+                        error_list.append(err)
+                    if err <= minError:
+                        print("Minimum error reached at iteration {0}".format(i))
+                        break
+
+                print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
+
+                output_string = ""
+                iteration = 1
+                for x in error_list:
+                    output_string += str(iteration) + " " + str(x) + "\n"
+                    iteration += 1
+
+                file = open('error_data', 'w')
+                file.write(output_string)
+                file.close()
+            else:
+                output_learn_data = changeTargetDataFormatToFitSVC(output_learn_data)
+                bpn.fit(
+                    X=input_learn__data, y=output_learn_data
+                )
+        elif select == 3:
+            if mode:
+                output_array = np.zeros((output_size, output_size))
+
+                good_samples = 0
+                bad_samples= 0
+
+                data_test_input_file = input("Podaj nazwe pliku z danymi do testowania sieci: ")
+                input_test_data, output_test_data = readDataFromFile(data_test_input_file)
+                if data_test_input_file == "wine.data":
+                    input_test_data = normaliseVector(input_test_data)
+                for x in range(len(input_test_data)):
+                    output = bpn.run(np.array([input_test_data[x]]))
+                    print(output)
+                    computed = np.argmax(output)
+                    original = np.argmax([output_test_data[x]])
+                    output_array[original][computed] += 1
+                    if original == computed:
+                        good_samples += 1
+                    else:
+                        bad_samples += 1
+                print("Dobrze zakwalifikowanych próbek jest {0}, źle jest {1}, {2}% jest dobrze.".format(good_samples, bad_samples, good_samples/(good_samples+bad_samples)*100))
+                print(output_array)
+
+            else:
+                output_array = np.zeros((output_size, output_size))
+
+                good_samples = 0
+                bad_samples = 0
+
+                data_test_input_file = input("Podaj nazwe pliku z danymi do testowania sieci: ")
+                input_test_data, output_test_data = readDataFromFile(data_test_input_file)
+                if data_test_input_file == "wine.data":
+                    input_test_data = normaliseVector(input_test_data)
+                output_test_data = changeTargetDataFormatToFitSVC(output_test_data)
+                for x in range(len(input_test_data)):
+                    output = bpn.predict(np.array([input_test_data[x]]))
+                    print(output)
+                    computed = output[0]
+                    original = output_test_data[x]
+                    output_array[original][computed] += 1
+                    if original == computed:
+                        good_samples += 1
+                    else:
+                        bad_samples += 1
+                print("Dobrze zakwalifikowanych próbek jest {0}, źle jest {1}, {2}% jest dobrze.".format(good_samples,
+                                                                                                         bad_samples,
+                                                                                                         good_samples / (
+                                                                                                         good_samples + bad_samples) * 100))
+                print(output_array)
+
         elif select == 4:
             break
