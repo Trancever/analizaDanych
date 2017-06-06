@@ -184,6 +184,27 @@ def normaliseVector(input):
     return np.transpose(input)
 
 
+def test(filename):
+    output_array = np.zeros((output_size, output_size))
+
+    good_samples = 0
+    bad_samples = 0
+
+    input_test_data, output_test_data = readDataFromFile(filename)
+    if filename == "wine.data":
+        input_test_data = normaliseVector(input_test_data)
+    for x in range(len(input_test_data)):
+        output = bpn.run(np.array([input_test_data[x]]))
+        computed = np.argmax(output)
+        original = np.argmax([output_test_data[x]])
+        output_array[original][computed] += 1
+        if original == computed:
+            good_samples += 1
+        else:
+            bad_samples += 1
+
+    return (good_samples / (good_samples + bad_samples) * 100)
+
 
 
 if __name__ == "__main__":
@@ -233,9 +254,12 @@ if __name__ == "__main__":
                 else:
                     print("Stała kolejność wzorców")
 
+                filename = input("Podaj nazwe pliku z danymi do testowania: ")
+
                 maxIteration = 100000
-                minError = 1e-5
+                minError = 1e-3
                 error_list = []
+                test_pass_percentage_error = []
                 for i in range(maxIteration+1):
 
                     # Shuffle the lists
@@ -247,23 +271,36 @@ if __name__ == "__main__":
                         dataTarget = np.array(list(dataTarget))
 
                     err = bpn.trainEpoch(input=input_learn__data, target=output_learn_data, momentum=momentum, trainingRate=learning_rate)
-                    if (i % 20) == 0:
+                    if (i % 100) == 0:
                         error_list.append(err)
-                    if err <= minError:
-                        print("Minimum error reached at iteration {0}".format(i))
+                        percentage_error = test(filename)
+                        test_pass_percentage_error.append(percentage_error)
+                    if err <= minError or percentage_error > 94:
+                        print("Learning stopped at iteration {0}".format(i))
                         break
 
                 print("Wagi po zakończeniu nauki = {0}".format(bpn.weights))
 
                 output_string = ""
-                iteration = 1
+                iteration = 0
                 for x in error_list:
-                    output_string += str(iteration) + " " + str(x) + "\n"
+                    output_string += str(iteration*100) + " " + str(x) + "\n"
                     iteration += 1
 
                 file = open('error_data', 'w')
                 file.write(output_string)
                 file.close()
+
+                output_string = ""
+                iteration = 0
+                for x in test_pass_percentage_error:
+                    output_string += str(iteration*100) + " " + str(x) + "\n"
+                    iteration += 1
+
+                file = open('percetage_error_data', 'w')
+                file.write(output_string)
+                file.close()
+
             else:
                 output_learn_data = changeTargetDataFormatToFitSVC(output_learn_data)
                 bpn.fit(
