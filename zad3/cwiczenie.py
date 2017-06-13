@@ -191,7 +191,7 @@ def test(filename):
     bad_samples = 0
 
     input_test_data, output_test_data = readDataFromFile(filename)
-    if filename == "wine.data":
+    if filename == "wine.data" or filename == "wine_learn.data":
         input_test_data = normaliseVector(input_test_data)
     for x in range(len(input_test_data)):
         output = bpn.run(np.array([input_test_data[x]]))
@@ -236,7 +236,7 @@ if __name__ == "__main__":
                 bpn = BackPropagationNetwork((input_size, number_of_hidden_neurons, output_size), bias=bias)
                 print(bpn)
             else:
-                bpn = SVC()
+                bpn = SVC(C=1000)
         elif select == 2:
             if mode:
                 learning_rate = float(input("Podaj wartość wspołczynnika nauki: "))
@@ -271,7 +271,7 @@ if __name__ == "__main__":
                         dataTarget = np.array(list(dataTarget))
 
                     err = bpn.trainEpoch(input=input_learn__data, target=output_learn_data, momentum=momentum, trainingRate=learning_rate)
-                    if (i % 100) == 0:
+                    if (i % 5) == 0:
                         error_list.append(err)
                         percentage_error = test(filename)
                         test_pass_percentage_error.append(percentage_error)
@@ -284,7 +284,7 @@ if __name__ == "__main__":
                 output_string = ""
                 iteration = 0
                 for x in error_list:
-                    output_string += str(iteration) + " " + str(x) + "\n"
+                    output_string += str(iteration*5) + " " + str(x) + "\n"
                     iteration += 1
 
                 file = open('error_data', 'w')
@@ -294,7 +294,7 @@ if __name__ == "__main__":
                 output_string = ""
                 iteration = 0
                 for x in test_pass_percentage_error:
-                    output_string += str(iteration) + " " + str(x) + "\n"
+                    output_string += str(iteration*5) + " " + str(x) + "\n"
                     iteration += 1
 
                 file = open('percetage_error_data', 'w')
