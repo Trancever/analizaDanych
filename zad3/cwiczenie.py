@@ -284,7 +284,7 @@ if __name__ == "__main__":
                 output_string = ""
                 iteration = 0
                 for x in error_list:
-                    output_string += str(iteration*100) + " " + str(x) + "\n"
+                    output_string += str(iteration) + " " + str(x) + "\n"
                     iteration += 1
 
                 file = open('error_data', 'w')
@@ -294,7 +294,7 @@ if __name__ == "__main__":
                 output_string = ""
                 iteration = 0
                 for x in test_pass_percentage_error:
-                    output_string += str(iteration*100) + " " + str(x) + "\n"
+                    output_string += str(iteration) + " " + str(x) + "\n"
                     iteration += 1
 
                 file = open('percetage_error_data', 'w')
